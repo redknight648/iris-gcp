@@ -1,33 +1,36 @@
-from flask import Flask, render_template, request, jsonify
-import joblib
-import os
-import config
 
-app = Flask(__name__)
+import streamlit as st
+import pandas as pd
+import numpy as np
+import pickle
 
-# Load the model
-def load_model():
-    path = os.path.join(os.path.dirname(__file__), "model.pkl")
-    model = joblib.load(path)
-    return model
-
-model = load_model()
+# Load the trained iris model
+model = pickle.load(open('./model.pkl','rb'))
 TARGET_NAMES = ['setosa', 'versicolor', 'virginica']
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def main():
 
-@app.route('/predict_class', methods=['POST'])
-def predict_class():
-    try:
-        data = request.json['data']
-        y_pred = model.predict([data])[0]
-        pred_class = TARGET_NAMES[y_pred]
-        response = {"class": pred_class}
-        return jsonify(response)
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # Title of the app page
+    st.title('Iris Flower Prediction App')
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=config.PORT, debug=config.DEBUG_MODE)
+    # Add a heading for input features
+    st.subheader('Enter Flower Feature For Predictions')
+
+    # Rquest for input fatures, but replod with some default values
+    sepal_lenght   = st.text_input('Sepal Len (cm)', 2.0)
+    sepal_width    = st.text_input('Sepal Width (cm)', 3.0)
+    petal_length   = st.text_input('Petal Len (cm)', 4.0)
+    petal_width    = st.text_input('Petal Width (cm)', 5.0)
+
+
+    # Get predictions when the button is pressed
+    if st.button('Get Prediction'):
+
+        # run predictions
+        pred = model.predict(np.array([[float(sepal_lenght),float(sepal_width),float(petal_length),float(petal_width)]]))
+
+        st.text('Predicted Flower:' + TARGET_NAMES[int(pred[0])])
+
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-import joblib
+import pickle
 from sklearn.datasets import load_iris
 from sklearn.tree import DecisionTreeClassifier
 
@@ -8,4 +8,4 @@ y = iris.target
 
 tree = DecisionTreeClassifier()
 tree.fit(x,y)
-joblib.dump(tree, "./model.pkl")
+pickle.dump(tree, open('./model.pkl', 'wb'))
